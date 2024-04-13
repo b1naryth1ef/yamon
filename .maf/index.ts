@@ -10,8 +10,8 @@ import {
 import { format as formatBytes } from "@std/fmt/bytes.ts";
 
 const dockerFile = `
-FROM golang:1.22-bookworm
-RUN apt-get update -y && apt-get install -y build-essential libsystemd-dev:amd64 gcc-12-aarch64-linux-gnu
+FROM golang:1.22-bullseye
+RUN apt-get update -y && apt-get install -y build-essential libsystemd-dev:amd64 gcc-9-aarch64-linux-gnu
 `;
 
 export type Project = "agent" | "server";
@@ -47,7 +47,7 @@ export const build = task("build", async ({ go, project, release }: {
 
   const env = [...getGoBuildEnv(go), "CGO_ENABLED=1"];
   if (go.arch === GOARCH.arm64) {
-    env.push("CC=aarch64-linux-gnu-gcc-12");
+    env.push("CC=aarch64-linux-gnu-gcc-9");
   }
 
   await run(
