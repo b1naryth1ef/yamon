@@ -53,23 +53,11 @@ func main() {
 	sink := yamon.NewSinkMetadataFilter(hostname, nil, forwardClientSink)
 
 	if config.Journal != nil {
-		var tracker journal.JournalTracker
-		if config.Journal.CursorPath != "" {
-			tracker, err = journal.NewFileBasedJournalTracker(config.Journal.CursorPath, config.Journal.CursorSync)
-			if err != nil {
-				log.Panicf("Failed to create journal tracker: %v", err)
-				return
-			}
+		err = journal.Run(config.Journal, sink)
+		if err != nil {
+			log.Panicf("Failed to start journal: %v", err)
+			return
 		}
-
-		reader := journal.NewJournalReader(sink, tracker)
-		go func() {
-			err := reader.Run()
-			if err != nil {
-				log.Printf("Failed to run journal reader: %v", err)
-			}
-			log.Printf("journal reader exited")
-		}()
 	}
 
 	for _, logFile := range config.LogFile {

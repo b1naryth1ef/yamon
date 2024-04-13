@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/b1naryth1ef/yamon"
+	"github.com/b1naryth1ef/yamon/clickhouse"
 	"github.com/b1naryth1ef/yamon/common"
 )
 
@@ -18,7 +19,7 @@ func main() {
 		panic(err)
 	}
 
-	destination := yamon.NewClickhouseWriter(config.Clickhouse)
+	destination := clickhouse.NewClickhouseWriter(config.Clickhouse)
 	go destination.Run()
 
 	server := yamon.NewForwardServer(destination, config.Keys)

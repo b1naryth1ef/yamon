@@ -1,3 +1,5 @@
+//go:build linux && amd64
+
 package journal
 
 import (
@@ -183,4 +185,27 @@ func (j *JournalReader) Run() error {
 			}
 		}
 	}
+}
+
+func Run(config *common.DaemonJournalConfig, sink common.Sink) error {
+	var tracker JournalTracker
+	var err error
+	if config.CursorPath != "" {
+		tracker, err = NewFileBasedJournalTracker(config.CursorPath, config.CursorSync)
+		if err != nil {
+			return err
+		}
+	}
+
+	reader := NewJournalReader(sink, tracker)
+
+	go func() {
+		err := reader.Run()
+		if err != nil {
+			log.Printf("Failed to run journal reader: %v", err)
+		}
+		log.Printf("journal reader exited")
+	}()
+
+	return nil
 }

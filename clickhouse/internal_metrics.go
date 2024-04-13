@@ -1,4 +1,4 @@
-package yamon
+package clickhouse
 
 import (
 	"github.com/prometheus/client_golang/prometheus"

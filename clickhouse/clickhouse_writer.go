@@ -1,4 +1,4 @@
-package yamon
+package clickhouse
 
 import (
 	"context"
@@ -18,14 +18,14 @@ type ClickhouseWriter struct {
 	cfg     common.ServerClickhouseConfig
 	flushCh chan struct{}
 	conn    driver.Conn
-	batch   *ForwardBatch
+	batch   *common.Batch
 }
 
 func NewClickhouseWriter(cfg common.ServerClickhouseConfig) *ClickhouseWriter {
 	return &ClickhouseWriter{
 		cfg:     cfg,
 		flushCh: make(chan struct{}),
-		batch:   NewForwardBatch(),
+		batch:   common.NewBatch(),
 	}
 }
 
@@ -38,7 +38,7 @@ func makeMetricBatch(conn driver.Conn) (driver.Batch, error) {
 	return batch, nil
 }
 
-func (m *ClickhouseWriter) writeLogs(batch *ForwardBatch) error {
+func (m *ClickhouseWriter) writeLogs(batch *common.Batch) error {
 	logBatch, err := m.conn.PrepareBatch(context.Background(), "INSERT INTO logs (when, host, service, level, data, tags)")
 	if err != nil {
 		return err
@@ -59,7 +59,7 @@ func (m *ClickhouseWriter) writeLogs(batch *ForwardBatch) error {
 	return nil
 }
 
-func (m *ClickhouseWriter) writeMetrics(batch *ForwardBatch) error {
+func (m *ClickhouseWriter) writeMetrics(batch *common.Batch) error {
 	metricBatch, err := m.conn.PrepareBatch(context.Background(), "INSERT INTO metrics (when, type, host, name, value, tags)")
 	if err != nil {
 		return err
@@ -83,7 +83,7 @@ func (m *ClickhouseWriter) writeMetrics(batch *ForwardBatch) error {
 func (m *ClickhouseWriter) flush() error {
 	m.Lock()
 	batch := m.batch
-	m.batch = NewForwardBatch()
+	m.batch = common.NewBatch()
 	m.Unlock()
 
 	if m.conn == nil {
