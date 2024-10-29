@@ -1,0 +1,29 @@
+name: Go
+
+on:
+  push: {}
+  pull_request: {}
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+
+    - name: Install Dependencies
+      run: sudo apt-get install -y libsystemd-dev
+
+    - name: Build Agent
+      run: go build cmd/yamon-agent/main.go
+    
+    - name: Build Server
+      run: go build cmd/yamon-server/main.go
+    
+    - name: Build Debug Helper
+      run: go build cmd/yamon-debug/main.go

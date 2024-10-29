@@ -1,0 +1,7 @@
+/yamon-agent
+/yamon-server
+/yamon-debug
+/config.hcl
+/config.server.hcl
+/scratch.txt
+.maf/import-map.json
