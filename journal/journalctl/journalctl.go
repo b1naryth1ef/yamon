@@ -5,9 +5,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"strconv"
+	"time"
 )
 
-type Entry = map[string]string
+type Entry map[string]string
+
+func (e Entry) RealtimeTimestamp() time.Time {
+	realtimeTimestamp, _ := strconv.Atoi(e["__REALTIME_TIMESTAMP"])
+	return time.Unix(int64(realtimeTimestamp/1000000), 0)
+}
 
 type Instance struct {
 	cmd     *exec.Cmd

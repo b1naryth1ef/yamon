@@ -2,8 +2,6 @@ package journal
 
 import (
 	"log/slog"
-	"strconv"
-	"time"
 
 	"github.com/b1naryth1ef/yamon/common"
 	"github.com/b1naryth1ef/yamon/journal/journalctl"
@@ -59,17 +57,12 @@ func (j *JournalClient) Run() error {
 		delete(entry, "_SYSTEMD_INVOCATION_ID")
 		delete(entry, "_STREAM_ID")
 		delete(entry, "__MONOTONIC_TIMESTAMP")
-		realtimeTimestampStr := entry["__REALTIME_TIMESTAMP"]
+
+		realtimeTimestamp := entry.RealtimeTimestamp()
 		delete(entry, "__REALTIME_TIMESTAMP")
 
 		cursor := entry["__CURSOR"]
 		delete(entry, "__CURSOR")
-
-		realtimeTimestamp, err := strconv.Atoi(realtimeTimestampStr)
-		if err != nil {
-			slog.Warn("failed to parse journal entry timestamp", slog.String("timestamp", realtimeTimestampStr), slog.Any("error", err))
-			continue
-		}
 
 		logEntry := common.NewLogEntry(
 			service,
@@ -77,7 +70,7 @@ func (j *JournalClient) Run() error {
 			entry,
 		)
 
-		logEntry.Time = time.Unix(int64(realtimeTimestamp/1000000), 0)
+		logEntry.Time = realtimeTimestamp
 		logEntry.Level = getLevelName(entry["PRIORITY"])
 		j.sink.WriteLog(logEntry)
 
