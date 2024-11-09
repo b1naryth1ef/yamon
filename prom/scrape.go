@@ -68,6 +68,11 @@ func (s *Scraper) scrape() {
 	for _, metricFamily := range mf {
 		for _, metric := range metricFamily.Metric {
 			tags := map[string]string{}
+			if s.config.Tags != nil {
+				for k, v := range s.config.Tags {
+					tags[k] = v
+				}
+			}
 			for _, label := range metric.Label {
 				tags[label.GetName()] = label.GetValue()
 			}
