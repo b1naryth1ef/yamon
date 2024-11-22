@@ -4,11 +4,12 @@ go 1.23.0
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.30.0
+	github.com/alecthomas/kong v1.4.0
 	github.com/alexflint/go-arg v1.5.1
 	github.com/alioygur/gores v1.2.2
 	github.com/elastic/go-libaudit/v2 v2.6.0
 	github.com/go-chi/chi/v5 v5.1.0
-	github.com/hashicorp/hcl/v2 v2.22.0
+	github.com/hashicorp/hcl/v2 v2.23.0
 	github.com/influxdata/tail v1.0.0
 	github.com/mackerelio/go-osstat v0.2.5
 	github.com/prometheus/client_golang v1.20.5
@@ -49,7 +50,7 @@ require (
 	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/text v0.20.0 // indirect
 	golang.org/x/tools v0.27.0 // indirect
-	google.golang.org/protobuf v1.35.1 // indirect
+	google.golang.org/protobuf v1.35.2 // indirect
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

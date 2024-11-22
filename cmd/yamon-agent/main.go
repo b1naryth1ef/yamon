@@ -67,12 +67,20 @@ func main() {
 		go yamon.RunTail(logFile, sink)
 	}
 
+	for _, scriptConfig := range config.Scripts {
+		script, err := yamon.NewScript(scriptConfig)
+		if err != nil {
+			log.Panicf("Failed to setup script for path %v: %v", scriptConfig.Path, err)
+		}
+		go script.Run(sink)
+	}
+
 	for _, promCfg := range config.Prometheus {
-		scraper, err := prom.NewScraper(promCfg, sink)
+		scraper, err := prom.NewScraper(promCfg)
 		if err != nil {
 			log.Panicf("Failed to setup prometheus scraper for url %v: %v", promCfg.URL, err)
 		}
-		go scraper.Run()
+		go scraper.Run(sink)
 	}
 
 	disabledCollectors := map[string]struct{}{}

@@ -1,6 +1,8 @@
 # yamon
 
-yamon is a lightweight set of tools for collecting and ingesting monitoring data into [ClickHouse](https://clickhouse.com/). It's designed to ingest metrics, logs, and events in a variety of formats.
+yamon is a lightweight set of tools for collecting and ingesting monitoring data
+into [ClickHouse](https://clickhouse.com/). It's designed to ingest metrics,
+logs, and events in a variety of formats.
 
 ## Features
 
@@ -14,49 +16,14 @@ yamon is a lightweight set of tools for collecting and ingesting monitoring data
 - build it locally (`just build`)
 - [docker](/Dockerfile) just provide a `config.hcl` file for the agent or server
 
-### Agent Configuration
+### Configuration
 
-```hcl
-target = "http://client:key@my-yamon-server:6691"
+As a starting point take a look at the example [agent config](./examples/config-agent.hcl) and [server config](./examples/config-server.hcl).
 
-// Journal enables processing and forwarding of journald entries
-journal {
-  enabled = true
+### Custom Scripts
 
-  // the cursor will ensure all logs get synced even across agent restarts
-  cursor_path = "/var/opt/yamon-journal-cursor.txt"
-
-  // how many log entries to forward before fsyncing the cursor file
-  cursor_sync = 128
-}
-
-// Collect prometheus metrics from ClickHouse
-prometheus {
-  url      = "http://localhost:9363/metrics"
-  interval = "60s"
-}
-
-// Collect prometheus metrics from the Yamon Server
-prometheus {
-  url      = "http://localhost:6691/metrics"
-  interval = "15s"
-}
-
-// Collect log data from a file on disk
-log_file "/var/log/my_service/example.log" {
-  service = "my_service"
-  level   = "info"
-}
-```
-
-### Server Configuration
-
-```hcl
-bind       = "0.0.0.0:6691"
-keys       = { "client" : "key" }
-
-clickhouse {
-  targets  = ["localhost:9000"]
-  database = "yamon"
-}
-```
+yamon supports generating data from custom scripts. These scripts can be
+anything exec-able that produce JSON data in a specified format. The intention is
+to allow using scripting languages for generating ad-hoc or domain specific
+observability data. For an example of the expected format see the
+[qbittorrent](./examples/qbittorrent.ts) script.
