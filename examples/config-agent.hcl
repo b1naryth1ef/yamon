@@ -43,4 +43,16 @@ prometheus {
 // we can also just run scripts on disk
 script "/etc/yamon/qbittorrent.ts" {
   env = { "QBITTORRENT_HOST" : "my-host:9989" }
+
+  // we can pass whatever we need as args
+  // args = ["--example", "--argument", "passing"]
+
+  // set an interval for how often we want to run the script to collect data
+  interval = "30s"
+
+  // config a timeout (should generally be lower than your interval)
+  timeout = "20s"
+
+  // we could set STREAMING=1 above and enable this mode to have the script run and stream data from stdout
+  // streaming = true
 }

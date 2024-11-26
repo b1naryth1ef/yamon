@@ -22,8 +22,9 @@ var CLI struct {
 	} `cmd:"" help:"Run a yamon collector and output the results."`
 
 	Script struct {
-		Path string   `arg:"" type:"path" help:"path of script to execute"`
-		Env  []string `name:"env" help:"configure env variables"`
+		Path      string   `arg:"" type:"path" help:"path of script to execute"`
+		Env       []string `name:"env" help:"configure env variables"`
+		Streaming bool     `name:"streaming" help:"enable streaming mode"`
 	} `cmd:"" help:"Run a yamon-compatible script and output the results."`
 
 	LogLevel string `name:"log-level" default:"info"`
@@ -63,8 +64,9 @@ func commandScript() error {
 	}
 
 	script, err := yamon.NewScript(common.DaemonScriptConfig{
-		Path: CLI.Script.Path,
-		Env:  env,
+		Path:      CLI.Script.Path,
+		Env:       env,
+		Streaming: CLI.Script.Streaming,
 	})
 	if err != nil {
 		return err

@@ -33,10 +33,12 @@ type DaemonConfig struct {
 }
 
 type DaemonScriptConfig struct {
-	Path     string            `hcl:"path,label"`
-	Interval string            `hcl:"interval,optional"`
-	Args     []string          `hcl:"args,optional"`
-	Env      map[string]string `hcl:"env,optional"`
+	Path      string            `hcl:"path,label"`
+	Args      []string          `hcl:"args,optional"`
+	Env       map[string]string `hcl:"env,optional"`
+	Interval  string            `hcl:"interval,optional"`
+	Timeout   string            `hcl:"timeout,optional"`
+	Streaming bool              `hcl:"streaming,optional"`
 }
 
 type DaemonHTTPConfig struct {

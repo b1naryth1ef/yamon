@@ -1,5 +1,6 @@
 #!/usr/bin/env -S deno run -A --node-modules-dir=auto
 
+const STREAMING = Deno.env.get("STREAMING");
 const QBITTORRENT_HOST = Deno.env.get("QBITTORRENT_HOST");
 
 type YamonMetric = {
@@ -16,14 +17,10 @@ type YamonScriptResult = {
 
 async function writeResult(result: YamonScriptResult) {
   const data = JSON.stringify(result);
-  await Deno.stdout.write(new TextEncoder().encode(data));
+  await Deno.stdout.write(new TextEncoder().encode(data + "\n"));
 }
 
-export async function main() {
-  if (!QBITTORRENT_HOST) {
-    throw new Error("Please set the QBITTORRENT_HOST env variable!");
-  }
-
+async function collect() {
   const res = await fetch(`http://${QBITTORRENT_HOST}/api/v2/sync/maindata`);
   if (!res.ok) {
     throw new Error(
@@ -60,7 +57,28 @@ export async function main() {
     value: parseFloat(data.server_state.global_ratio),
   });
 
-  return await writeResult(result);
+  await writeResult(result);
+}
+
+export async function main() {
+  if (!QBITTORRENT_HOST) {
+    throw new Error("Please set the QBITTORRENT_HOST env variable!");
+  }
+
+  if (STREAMING === undefined) {
+    await collect();
+    return;
+  } else {
+    const loopFn = () => {
+      collect().then(() => {
+        setTimeout(loopFn, 1000);
+      });
+    };
+    loopFn();
+  }
+
+  const p = new Promise(() => {});
+  await p;
 }
 
 await main();
