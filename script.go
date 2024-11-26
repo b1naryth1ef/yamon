@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"log/slog"
 	"os"
 	"os/exec"
@@ -39,9 +38,51 @@ func (s *ScriptMetric) Write(sink common.MetricSink) {
 	sink.WriteMetric(entry)
 }
 
+type ScriptLogEntry struct {
+	Service string `json:"service"`
+	Level   string `json:"level"`
+	Data    string `json:"data"`
+
+	Time int64             `json:"time,omitempty"`
+	Tags map[string]string `json:"tags,omitempty"`
+}
+
+func (l *ScriptLogEntry) Write(sink common.LogSink) {
+	entry := common.NewLogEntry(l.Service, l.Data, l.Tags)
+
+	entry.Level = l.Level
+	if l.Time > 0 {
+		entry.Time = time.Unix(l.Time, 0)
+	}
+
+	sink.WriteLog(entry)
+}
+
+type ScriptEvent struct {
+	Type string `json:"type"`
+	Data string `json:"data"`
+
+	Time int64             `json:"time,omitempty"`
+	Tags map[string]string `json:"tags,omitempty"`
+}
+
+func (e *ScriptEvent) Write(sink common.EventSink) {
+	entry := common.NewEvent(e.Type, e.Data, e.Tags)
+	if e.Time > 0 {
+		entry.Time = time.Unix(e.Time, 0)
+	}
+	sink.WriteEvent(entry)
+}
+
 type ScriptResult struct {
 	Metrics []ScriptMetric `json:"metrics,omitempty"`
 	Metric  *ScriptMetric  `json:"metric,omitempty"`
+
+	Logs []ScriptLogEntry `json:"logs,omitempty"`
+	Log  *ScriptLogEntry  `json:"log,omitempty"`
+
+	Events []ScriptEvent `json:"events,omitempty"`
+	Event  *ScriptEvent  `json:"event,omitempty"`
 }
 
 func (s *ScriptResult) Write(sink common.Sink) {
@@ -52,6 +93,26 @@ func (s *ScriptResult) Write(sink common.Sink) {
 	if s.Metrics != nil {
 		for _, metric := range s.Metrics {
 			metric.Write(sink)
+		}
+	}
+
+	if s.Log != nil {
+		s.Log.Write(sink)
+	}
+
+	if s.Logs != nil {
+		for _, log := range s.Logs {
+			log.Write(sink)
+		}
+	}
+
+	if s.Event != nil {
+		s.Event.Write(sink)
+	}
+
+	if s.Events != nil {
+		for _, event := range s.Events {
+			event.Write(sink)
 		}
 	}
 }
@@ -116,11 +177,9 @@ func (s *Script) Execute(sink common.Sink) error {
 
 		go func() {
 			lines := bufio.NewScanner(r)
-			log.Printf("SCANNING")
 			for lines.Scan() {
 				var result ScriptResult
 				line := lines.Bytes()
-				log.Printf("SCANNED %v", lines.Text())
 
 				err := json.Unmarshal(line, &result)
 				if err != nil {

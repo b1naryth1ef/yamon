@@ -1,24 +1,13 @@
 #!/usr/bin/env -S deno run -A --node-modules-dir=auto
 
+// TODO: proper import url
+import {
+  writeResult,
+  YamonScriptResult,
+} from "https://raw.githubusercontent.com/b1naryth1ef/yamon/f73c8e7780ccbdc4207f321be0b51b71d70f9c9c/res/deno/yamon.ts";
+
 const STREAMING = Deno.env.get("STREAMING");
 const QBITTORRENT_HOST = Deno.env.get("QBITTORRENT_HOST");
-
-type YamonMetric = {
-  type: "counter" | "gauge";
-  name: string;
-  value: number;
-  time?: number;
-  tags?: Record<string, string>;
-};
-
-type YamonScriptResult = {
-  metrics: Array<YamonMetric>;
-};
-
-async function writeResult(result: YamonScriptResult) {
-  const data = JSON.stringify(result);
-  await Deno.stdout.write(new TextEncoder().encode(data + "\n"));
-}
 
 async function collect() {
   const res = await fetch(`http://${QBITTORRENT_HOST}/api/v2/sync/maindata`);
