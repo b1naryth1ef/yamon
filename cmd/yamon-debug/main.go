@@ -13,9 +13,6 @@ import (
 	"github.com/b1naryth1ef/yamon/common"
 )
 
-// yamon-debug collector <name>
-// yamon-debug script <path>
-
 var CLI struct {
 	Collector struct {
 		Name string `arg:"" help:"the collector to execute"`
