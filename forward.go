@@ -94,8 +94,14 @@ func NewForwardClientSink(client *ForwardClient, flushCfg ForwardClientSinkFlush
 }
 
 func (f *ForwardClientSink) flush() error {
+	start := time.Now()
+
 	f.Lock()
 	batch := f.batch
+	batchSize := batch.Size()
+	defer func() {
+		slog.Debug("forward-client-sink: flushed", slog.String("duration", time.Since(start).String()), slog.Int("size", batchSize))
+	}()
 	f.batch = common.NewBatch()
 	f.Unlock()
 

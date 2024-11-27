@@ -13,3 +13,7 @@ func NewBatch() *Batch {
 		Events:  make([]*Event, 0),
 	}
 }
+
+func (b *Batch) Size() int {
+	return len(b.Metrics) + len(b.Logs) + len(b.Events)
+}
