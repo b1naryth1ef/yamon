@@ -27,8 +27,18 @@ type DaemonConfig struct {
 	DisabledCollectors []string                  `hcl:"disabled_collectors,optional"`
 	Prometheus         []PrometheusScraperConfig `hcl:"prometheus,block"`
 	LogFile            []LogFileBlock            `hcl:"log_file,block"`
+	Scripts            []DaemonScriptConfig      `hcl:"script,block"`
 	Journal            *DaemonJournalConfig      `hcl:"journal,block"`
 	HTTP               *DaemonHTTPConfig         `hcl:"http,block"`
+}
+
+type DaemonScriptConfig struct {
+	Path      string            `hcl:"path,label"`
+	Args      []string          `hcl:"args,optional"`
+	Env       map[string]string `hcl:"env,optional"`
+	Interval  string            `hcl:"interval,optional"`
+	Timeout   string            `hcl:"timeout,optional"`
+	Streaming bool              `hcl:"streaming,optional"`
 }
 
 type DaemonHTTPConfig struct {

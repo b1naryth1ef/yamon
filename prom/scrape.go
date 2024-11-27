@@ -11,13 +11,12 @@ import (
 
 type Scraper struct {
 	config   common.PrometheusScraperConfig
-	sink     common.MetricSink
 	interval time.Duration
 
 	http http.Client
 }
 
-func NewScraper(config common.PrometheusScraperConfig, sink common.MetricSink) (*Scraper, error) {
+func NewScraper(config common.PrometheusScraperConfig) (*Scraper, error) {
 	interval, err := time.ParseDuration(config.Interval)
 	if err != nil {
 		return nil, err
@@ -36,21 +35,20 @@ func NewScraper(config common.PrometheusScraperConfig, sink common.MetricSink) (
 	return &Scraper{
 		config:   config,
 		interval: interval,
-		sink:     sink,
 		http: http.Client{
 			Timeout: timeout,
 		},
 	}, nil
 }
 
-func (s *Scraper) Run() {
+func (s *Scraper) Run(sink common.MetricSink) {
 	for {
-		s.scrape()
+		s.scrape(sink)
 		time.Sleep(s.interval)
 	}
 }
 
-func (s *Scraper) scrape() {
+func (s *Scraper) scrape(sink common.MetricSink) {
 	res, err := s.http.Get(s.config.URL)
 	if err != nil {
 		slog.Error("failed to prom scrape", slog.String("url", s.config.URL), slog.Any("error", err))
@@ -84,10 +82,10 @@ func (s *Scraper) scrape() {
 
 			if metric.Gauge != nil {
 				value := metric.Gauge.GetValue()
-				s.sink.WriteMetric(common.NewGauge(name, value, tags))
+				sink.WriteMetric(common.NewGauge(name, value, tags))
 			} else if metric.Counter != nil {
 				value := metric.Counter.GetValue()
-				s.sink.WriteMetric(common.NewCounter(name, value, tags))
+				sink.WriteMetric(common.NewCounter(name, value, tags))
 			} else {
 				slog.Debug("skipping unsupported prom metric type", slog.String("name", *metricFamily.Name), slog.Any("type", metricFamily.Type))
 			}
