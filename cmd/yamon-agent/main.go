@@ -50,7 +50,7 @@ func main() {
 
 	sink := yamon.NewSinkMetadataFilter(hostname, nil, forwardClientSink)
 
-	if config.Journal != nil {
+	if config.Journal != nil && config.Journal.Enabled {
 		err = journal.Run(config.Journal, sink)
 		if err != nil {
 			log.Panicf("Failed to start journal: %v", err)
