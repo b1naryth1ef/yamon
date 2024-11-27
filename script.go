@@ -227,13 +227,14 @@ func (s *Script) Run(sink common.Sink) {
 			}
 		}()
 	} else {
-		timer := time.NewTimer(s.interval)
+		ticker := time.NewTicker(s.interval)
 		for {
 			err := s.Execute(sink)
 			if err != nil {
 				slog.Error("script: failed to execute", slog.String("path", s.path), slog.Any("error", err))
 			}
-			<-timer.C
+			time.Sleep(s.interval)
+			<-ticker.C
 		}
 	}
 }
