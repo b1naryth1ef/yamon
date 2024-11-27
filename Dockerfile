@@ -10,9 +10,10 @@ RUN go mod download
 
 COPY . /usr/src/yamon/
 
-RUN go build -v -o /bin/yamon-agent cmd/yamon-agent/main.go
-RUN go build -v -o /bin/yamon-server cmd/yamon-server/main.go
-RUN go build -v -o /bin/yamon-debug cmd/yamon-debug/main.go
+ENV GOCACHE=/var/cache/go-build
+RUN --mount=type=cache,target="/var/cache/go-build" go build -v -o /bin/yamon-agent cmd/yamon-agent/main.go
+RUN --mount=type=cache,target="/var/cache/go-build" go build -v -o /bin/yamon-server cmd/yamon-server/main.go
+RUN --mount=type=cache,target="/var/cache/go-build" go build -v -o /bin/yamon-debug cmd/yamon-debug/main.go
 
 WORKDIR /opt
 ENTRYPOINT ["/bin/yamon-agent"]
