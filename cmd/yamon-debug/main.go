@@ -88,7 +88,7 @@ func commandCollector() error {
 		return fmt.Errorf("Error: %v\n", err)
 	}
 
-	fmt.Printf("Ran collector %s in %v", CLI.Collector.Name, time.Since(start))
+	fmt.Printf("Ran collector %s in %v\n", CLI.Collector.Name, time.Since(start))
 	return nil
 }
 
