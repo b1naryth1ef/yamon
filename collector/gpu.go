@@ -1,12 +1,11 @@
 package collector
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
 	"log/slog"
 	"os"
 	"os/exec"
@@ -45,16 +44,9 @@ func collectNVIDIA(ctx context.Context, sink common.Sink) error {
 		return err
 	}
 
-	for {
-		line, err := stdout.ReadString('\n')
-		if err != nil {
-			if errors.Is(err, io.EOF) {
-				break
-			}
-
-			return err
-		}
-
+	scanner := bufio.NewScanner(&stdout)
+	for scanner.Scan() {
+		line := scanner.Text()
 		parts := strings.Split(line, ", ")
 		tags := map[string]string{
 			"device": parts[1],
