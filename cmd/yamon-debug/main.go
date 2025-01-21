@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/alecthomas/kong"
 	"github.com/b1naryth1ef/yamon"
@@ -80,12 +81,14 @@ func commandCollector() error {
 		return fmt.Errorf("No collector with name '%s'\n", CLI.Collector.Name)
 	}
 
+	start := time.Now()
 	sink := &FakeSink{}
 	err := collector.Collect(context.Background(), sink)
 	if err != nil {
 		return fmt.Errorf("Error: %v\n", err)
 	}
 
+	fmt.Printf("Ran collector %s in %v", CLI.Collector.Name, time.Since(start))
 	return nil
 }
 
