@@ -14,6 +14,8 @@ import (
 )
 
 var CLI struct {
+	Info struct{} `cmd:"" help:"Show info about all collectors available"`
+
 	Collector struct {
 		Name string `arg:"" help:"the collector to execute"`
 	} `cmd:"" help:"Run a yamon collector and output the results."`
@@ -87,6 +89,15 @@ func commandCollector() error {
 	return nil
 }
 
+func commandInfo() error {
+	fmt.Printf("Collectors:\n")
+	for name := range collector.Registry {
+		fmt.Printf("  %s\n", name)
+	}
+
+	return nil
+}
+
 func main() {
 	ctx := kong.Parse(&CLI)
 
@@ -98,6 +109,8 @@ func main() {
 		err = commandCollector()
 	case "script <path>":
 		err = commandScript()
+	case "info":
+		err = commandInfo()
 	default:
 		log.Panicf("unknown command %s", ctx.Command())
 	}
