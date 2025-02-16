@@ -12,6 +12,16 @@ journal {
   cursor_sync = 128
 }
 
+// we can completely disable unwanted collectors
+collector "gpu" {
+  disabled = true
+}
+
+// we can configure the interval at which collectors run
+collector "apt" {
+  interval = "5m"
+}
+
 // the http server provides access to the agent api
 http {
   bind = "localhost:9877"
