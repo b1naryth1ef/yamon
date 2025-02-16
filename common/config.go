@@ -22,14 +22,20 @@ type ServerClickhouseConfig struct {
 }
 
 type DaemonConfig struct {
-	Target             string                    `hcl:"target"`
-	Collectors         []string                  `hcl:"collectors,optional"`
-	DisabledCollectors []string                  `hcl:"disabled_collectors,optional"`
-	Prometheus         []PrometheusScraperConfig `hcl:"prometheus,block"`
-	LogFile            []LogFileBlock            `hcl:"log_file,block"`
-	Scripts            []DaemonScriptConfig      `hcl:"script,block"`
-	Journal            *DaemonJournalConfig      `hcl:"journal,block"`
-	HTTP               *DaemonHTTPConfig         `hcl:"http,block"`
+	Target     string                    `hcl:"target"`
+	Collectors []CollectorConfig         `hcl:"collector,block"`
+	Prometheus []PrometheusScraperConfig `hcl:"prometheus,block"`
+	LogFile    []LogFileBlock            `hcl:"log_file,block"`
+	Scripts    []DaemonScriptConfig      `hcl:"script,block"`
+	Journal    *DaemonJournalConfig      `hcl:"journal,block"`
+	HTTP       *DaemonHTTPConfig         `hcl:"http,block"`
+}
+
+type CollectorConfig struct {
+	Name     string `hcl:"name,label"`
+	Disabled bool   `hcl:"disabled,optional"`
+	Interval string `hcl:"interval,optional"`
+	Timeout  string `hcl:"timeout,optional"`
 }
 
 type DaemonScriptConfig struct {

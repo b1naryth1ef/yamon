@@ -19,14 +19,6 @@ func (r registry) Get(name string) Collector {
 	return r[name]
 }
 
-func (r registry) All() []Collector {
-	result := []Collector{}
-	for _, c := range r {
-		result = append(result, c)
-	}
-	return result
-}
-
 type Collector interface {
 	Collect(context.Context, common.Sink) error
 }

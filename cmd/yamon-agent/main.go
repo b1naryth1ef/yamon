@@ -2,8 +2,9 @@ package main
 
 import (
 	"log"
-	"log/slog"
+	"maps"
 	"os"
+	"slices"
 	"time"
 
 	"github.com/alexflint/go-arg"
@@ -83,34 +84,26 @@ func main() {
 		go scraper.Run(sink)
 	}
 
-	disabledCollectors := map[string]struct{}{}
-	if config.DisabledCollectors != nil && len(config.Collectors) > 0 {
-		for _, name := range config.DisabledCollectors {
-			disabledCollectors[name] = struct{}{}
-		}
+	collectors := make(map[string]common.CollectorConfig)
+	for _, userCollector := range config.Collectors {
+		collectors[userCollector.Name] = userCollector
 	}
-
-	var collectors []collector.Collector
-	if config.Collectors == nil || len(config.Collectors) == 0 {
-		collectors = collector.Registry.All()
-	} else {
-		for _, name := range config.Collectors {
-			if _, ok := disabledCollectors[name]; ok {
-				continue
+	for name := range collector.Registry {
+		if _, ok := collectors[name]; !ok {
+			collectors[name] = common.CollectorConfig{
+				Name: name,
 			}
-
-			c := collector.Registry.Get(name)
-			if c == nil {
-				slog.Warn("skipping unregistered collector", slog.String("name", name))
-				continue
-			}
-			collectors = append(collectors, c)
 		}
 	}
 
 	producer := yamon.NewProducer(
 		sink,
-		collectors...,
+		slices.Collect(maps.Values(collectors)),
 	)
-	producer.Run(time.Second * 5)
+	producer.Start()
+
+	// TODO: catch signals + support "graceful" shutdown
+	for {
+		time.Sleep(time.Minute * 5)
+	}
 }
