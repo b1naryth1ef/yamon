@@ -2,6 +2,7 @@ package prom
 
 import (
 	"log/slog"
+	"math"
 	"net/http"
 	"time"
 
@@ -82,9 +83,15 @@ func (s *Scraper) scrape(sink common.MetricSink) {
 
 			if metric.Gauge != nil {
 				value := metric.Gauge.GetValue()
+				if math.IsNaN(value) {
+					continue
+				}
 				sink.WriteMetric(common.NewGauge(name, value, tags))
 			} else if metric.Counter != nil {
 				value := metric.Counter.GetValue()
+				if math.IsNaN(value) {
+					continue
+				}
 				sink.WriteMetric(common.NewCounter(name, value, tags))
 			} else {
 				slog.Debug("skipping unsupported prom metric type", slog.String("name", *metricFamily.Name), slog.Any("type", metricFamily.Type))
